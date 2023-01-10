@@ -55,7 +55,7 @@ public class OrderService implements IOrderService {
         Order savedOrder = orderRepository.save(order);
         String savedOrderId = savedOrder.getOrderId();
         List<OrderItem> orderItemList = buildOrderItems(orderDto.getOrderItems(), savedOrderId);
-        orderItemRepository.saveAll(orderItemList);
+        //orderItemRepository.saveAll(orderItemList);
 
         log.info("Successfully saved order & order items with id = {} for customer = {} on {}", savedOrder.getOrderId(),  savedOrder.getCustomerId(), savedOrder.getCreatedAt());
 
@@ -66,7 +66,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public OrderDto findOrderById(String orderId) {
+    public Order findOrderById(String orderId) {
         log.info("Finding order for orderId = {}", orderId);
         Optional<Order> order = orderRepository.findById(orderId);
         if (order.isEmpty()) {
@@ -75,14 +75,14 @@ public class OrderService implements IOrderService {
         }
 
         log.info("Successfully found order for orderId = {}", orderId);
-        return orderDetailsMapper.toOrderDto(order.get());
+        return order.get();
     }
 
     @Override
     public void updateOrderStatus(String orderId, String status) {
-        OrderDto orderDto = findOrderById(orderId);
+        Order order = findOrderById(orderId);
 
-        if (orderDto == null) {
+        if (order == null) {
             log.info("Cannot update status for orderId = {}", orderId);
             return;
         }
@@ -93,7 +93,6 @@ public class OrderService implements IOrderService {
             return;
         }
 
-        Order order = orderRepository.findById(orderId).get();
         order.setOrderStatus(status.toUpperCase());
         orderRepository.save(order);
         log.info("Successfully updated order status to = {} for order id = {}", status.toUpperCase(), orderId);
